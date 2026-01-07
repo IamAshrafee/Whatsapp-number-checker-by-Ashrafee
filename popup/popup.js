@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // Copy to clipboard
-  copyToClipboardButton.addEventListener("click", function() {
+  copyButton.addEventListener("click", function() {
     var text = "Reference\tNumber\n";
     users.forEach(function(user) {
       text += user.Reference + "\t" + user.Number + "\n";
