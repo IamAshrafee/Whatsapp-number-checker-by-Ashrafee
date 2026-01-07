@@ -1,1 +1,14 @@
+# Operating System generated files
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# Packaged extension files
+*.zip
+
+# Log files
+*.log
 GEMINI.md

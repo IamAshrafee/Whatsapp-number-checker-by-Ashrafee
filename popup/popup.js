@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
           // Inject our content script
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            files: ["content.js"],
+            files: ["js/content.js"],
           }, function() {
             // Send message to start checking
             chrome.tabs.sendMessage(tab.id, { type: "start_check" });
