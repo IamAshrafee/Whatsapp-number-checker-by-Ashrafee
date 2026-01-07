@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Numbers Checker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>WhatsApp Numbers Checker</h1>
+      <span id="status" class="status-idle" aria-live="polite">Idle</span>
+    </header>
+
+    <section class="controls">
+      <button id="runScript"><span>▶️</span> Start Checking</button>
+      <button id="clearLogs" class="secondary-button">Clear Logs</button>
+    </section>
+
+    <section class="results-section">
+      <div class="results-header">
+        <h2>Results (<span id="user-count">0</span>)</h2>
+        <button id="clearResults" class="secondary-button clear-result">Clear Results</button>
+      </div>
+      <div id="results-container">
+        <table id="results-table">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Number</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- User data will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="export-controls">
+      <button id="exportJson" class="secondary-button">Export JSON</button>
+      <button id="exportCsv" class="secondary-button">Export CSV</button>
+      <button id="copyToClipboard" class="secondary-button">Copy</button>
+    </section>
+
+    <section class="log-section">
+      <h2>Logs</h2>
+      <div id="log-container"></div>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
