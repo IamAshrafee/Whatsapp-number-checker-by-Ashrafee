@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Add to the results table
     var newRow = document.createElement("tr");
-    newRow.innerHTML = "<td>" + user.Name + "</td><td>" + user.Number + "</td>";
+    newRow.innerHTML = "<td>" + user.Reference + "</td><td>" + user.Number + "</td>";
     resultsTable.appendChild(newRow);
     updateButtons();
   }
@@ -184,9 +184,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Export as CSV
   exportCsvButton.addEventListener("click", function() {
-    var csv = "Name,Number\n";
+    var csv = "Reference,Number\n";
     users.forEach(function(user) {
-      var safeName = user.Name.replace(/"/g, '""');
+      var safeName = user.Reference.replace(/"/g, '""');
       csv += '"' + safeName + '","' + user.Number + '"\n';
     });
     download(csv, "whatsapp_users.csv", "text/csv");
@@ -195,9 +195,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Copy to clipboard
   copyToClipboardButton.addEventListener("click", function() {
-    var text = "Name\tNumber\n";
+    var text = "Reference\tNumber\n";
     users.forEach(function(user) {
-      text += user.Name + "\t" + user.Number + "\n";
+      text += user.Reference + "\t" + user.Number + "\n";
     });
     
     navigator.clipboard.writeText(text).then(function() {

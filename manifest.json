@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WhatsApp Numbers Checker",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "A browser extension that automatically checks which phone numbers are active on WhatsApp, designed for marketing teams.",
   "permissions": ["scripting", "activeTab", "clipboardWrite", "tabs"],
   "host_permissions": ["*://web.whatsapp.com/*"],
