@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var exportJsonButton = document.getElementById("exportJson");
   var exportCsvButton = document.getElementById("exportCsv");
   var copyButton = document.getElementById("copyToClipboard");
+  var settingsButton = document.getElementById("settingsButton");
   var logArea = document.getElementById("log-container");
   var statusText = document.getElementById("status");
   var resultsTable = document.querySelector("#results-table tbody");
@@ -86,6 +87,11 @@ document.addEventListener("DOMContentLoaded", function() {
         updateStatus("Error", "error");
       }
     });
+  });
+
+  // Settings button
+  settingsButton.addEventListener("click", function() {
+    chrome.runtime.openOptionsPage();
   });
 
   // Clear logs button

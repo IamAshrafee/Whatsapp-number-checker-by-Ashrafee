@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WhatsApp Checker Settings</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Settings</h1>
+        <form id="settings-form">
+            <div class="setting">
+                <label for="randomDelay">Enable random delays between actions</label>
+                <input type="checkbox" id="randomDelay" name="randomDelay">
+            </div>
+            <div class="setting">
+                <label for="batchProcessing">Process numbers in batches</label>
+                <input type="checkbox" id="batchProcessing" name="batchProcessing">
+            </div>
+            <div class="setting">
+                <label for="pauseBetweenBatches">Enable random pauses between batches</label>
+                <input type="checkbox" id="pauseBetweenBatches" name="pauseBetweenBatches">
+            </div>
+            <div class="setting">
+                <label for="simulateErrors">Simulate human errors (skipping)</label>
+                <input type="checkbox" id="simulateErrors" name="simulateErrors">
+            </div>
+            <div class="setting">
+                <label for="randomOrder">Randomly process in reverse order</label>
+                <input type="checkbox" id="randomOrder" name="randomOrder">
+            </div>
+        </form>
+        <div id="status-save"></div>
+    </div>
+    <script src="settings.js"></script>
+</body>
+</html>

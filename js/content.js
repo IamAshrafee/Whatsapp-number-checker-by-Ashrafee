@@ -1,3 +1,22 @@
+let settings = {
+    randomDelay: true,
+    batchProcessing: true,
+    pauseBetweenBatches: true,
+    simulateErrors: true,
+    randomOrder: true
+};
+
+// Function to load settings
+function loadSettings() {
+    return new Promise((resolve) => {
+        chrome.storage.sync.get('settings', (data) => {
+            if (data.settings) {
+                settings = { ...settings, ...data.settings };
+            }
+            resolve();
+        });
+    });
+}
 // Function to send messages to the extension popup
 function sendMessageToPopup(messageType, messageData) {
   chrome.runtime.sendMessage({ 
@@ -45,7 +64,8 @@ function shouldSimulateError() {
 }
 
 // Main function to check WhatsApp users from last message
-function checkWhatsAppUsersFromLastMessage() {
+async function checkWhatsAppUsersFromLastMessage() {
+  await loadSettings();
   sendMessageToPopup("log", "🚀 Starting WhatsApp check from the LAST message...");
 
   // Find all message rows in the chat
@@ -68,72 +88,78 @@ function checkWhatsAppUsersFromLastMessage() {
   sendMessageToPopup("log", "📃 Lines in last message: " + textSpans.length);
 
   // Process lines with all human-like behaviors
-  processLinesWithHumanBehavior(textSpans).then(function() {
+  try {
+    await processLinesWithHumanBehavior(textSpans);
     sendMessageToPopup("scan_complete", "✅ Done! All lines have been checked.");
-  }).catch(function(error) {
+  } catch(error) {
     sendMessageToPopup("error", "An error occurred: " + error.message);
-  });
+  }
 }
 
 // Function to process lines with human-like behavior
 async function processLinesWithHumanBehavior(lines) {
-  var linesArray = Array.from(lines);
-  var skippedLines = []; // Array to store skipped line indices
-  
-  // Randomly decide to process in reverse order (30% chance)
-  if (Math.random() < 0.3) {
-    linesArray.reverse();
-    sendMessageToPopup("log", "🔀 Checking lines in reverse order");
-  }
+    var linesArray = Array.from(lines);
+    var skippedLines = [];
 
-  var currentIndex = 0;
-  while (currentIndex < linesArray.length) {
-    // Get random batch size
-    var batchSize = getRandomBatchSize();
-    var batchEnd = Math.min(currentIndex + batchSize, linesArray.length);
-
-    sendMessageToPopup("log", "📊 Processing batch of " + batchSize + " lines");
-
-    // Process current batch
-    for (var i = currentIndex; i < batchEnd; i++) {
-      // Add initial delay before processing each line
-      await waitRandomTime(800, 2000);
-      
-      // Skip with 10% probability (simulate human error)
-      if (shouldSimulateError()) {
-        sendMessageToPopup("log", "🤷‍♂️ Oops! Missed line " + (i + 1) + " (human error simulation)");
-        skippedLines.push({line: linesArray[i], index: i + 1});
-        continue;
-      }
-
-      await processLine(linesArray[i], i + 1);
+    if (settings.randomOrder && Math.random() < 0.3) {
+        linesArray.reverse();
+        sendMessageToPopup("log", "🔀 Checking lines in reverse order");
     }
 
-    currentIndex = batchEnd;
-
-    // Pause after each batch except the last one
-    if (currentIndex < linesArray.length) {
-      var pauseDuration = getRandomPauseDuration();
-      var pauseMinutes = Math.round(pauseDuration / 60000);
-      sendMessageToPopup("log", "⏸️ Pausing for ~" + pauseMinutes + " minutes...");
-      await new Promise(resolve => setTimeout(resolve, pauseDuration));
-      sendMessageToPopup("log", "↩️ Resuming checking...");
+    if (!settings.batchProcessing) {
+        sendMessageToPopup("log", "🏃‍♂️ Processing all lines without batching and pausing.");
     }
-  }
 
-  // Check if there were any skipped lines
-  if (skippedLines.length > 0) {
-    sendMessageToPopup("log", "🔍 Going back to check " + skippedLines.length + " skipped lines...");
-    
-    // Process all skipped lines with a small delay between each
-    for (var j = 0; j < skippedLines.length; j++) {
-      await waitRandomTime(800, 2000);
-      sendMessageToPopup("log", "🔍 Re-checking previously skipped line " + skippedLines[j].index);
-      await processLine(skippedLines[j].line, skippedLines[j].index);
+    let currentIndex = 0;
+    while (currentIndex < linesArray.length) {
+        let batchSize = linesArray.length; // Default to all lines
+        if (settings.batchProcessing) {
+            batchSize = getRandomBatchSize();
+        }
+        
+        const batchEnd = Math.min(currentIndex + batchSize, linesArray.length);
+
+        if (settings.batchProcessing) {
+            sendMessageToPopup("log", `📊 Processing batch of ${batchEnd - currentIndex} lines`);
+        }
+
+        for (let i = currentIndex; i < batchEnd; i++) {
+            if (settings.randomDelay) {
+                await waitRandomTime(800, 2000);
+            }
+
+            if (settings.simulateErrors && shouldSimulateError()) {
+                sendMessageToPopup("log", `🤷‍♂️ Oops! Missed line ${i + 1} (human error simulation)`);
+                skippedLines.push({ line: linesArray[i], index: i + 1 });
+                continue;
+            }
+            await processLine(linesArray[i], i + 1);
+        }
+
+        currentIndex = batchEnd;
+
+        if (settings.batchProcessing && settings.pauseBetweenBatches && currentIndex < linesArray.length) {
+            const pauseDuration = getRandomPauseDuration();
+            const pauseMinutes = Math.round(pauseDuration / 60000);
+            sendMessageToPopup("log", `⏸️ Pausing for ~${pauseMinutes} minutes...`);
+            await new Promise(resolve => setTimeout(resolve, pauseDuration));
+            sendMessageToPopup("log", "↩️ Resuming checking...");
+        }
     }
-    
-    sendMessageToPopup("log", "✅ Finished checking all skipped lines");
-  }
+
+    if (settings.simulateErrors && skippedLines.length > 0) {
+        sendMessageToPopup("log", `🔍 Going back to check ${skippedLines.length} skipped lines...`);
+
+        for (const skipped of skippedLines) {
+            if (settings.randomDelay) {
+                await waitRandomTime(800, 2000);
+            }
+            sendMessageToPopup("log", `🔍 Re-checking previously skipped line ${skipped.index}`);
+            await processLine(skipped.line, skipped.index);
+        }
+
+        sendMessageToPopup("log", "✅ Finished checking all skipped lines");
+    }
 }
 
 // Function to process a single line
