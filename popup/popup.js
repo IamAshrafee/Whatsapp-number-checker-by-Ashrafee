@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
   function stopScan() {
     scanning = false;
     if (currentTab) {
+      // Note: The content script needs to be listening for this message.
       chrome.tabs.sendMessage(currentTab, { type: "stop_scan" });
     }
     updateStatus("Stopped", "finished");
@@ -133,7 +134,6 @@ document.addEventListener("DOMContentLoaded", function() {
         updateStatus("Checking " + message.current + "/" + message.total, "running");
         break;
     }
-    return true;
   });
 
   // Function to add a log message

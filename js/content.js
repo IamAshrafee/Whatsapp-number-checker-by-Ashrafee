@@ -233,6 +233,5 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     checkWhatsAppUsersFromLastMessage().catch(function(error) {
       sendMessageToPopup("error", "An unexpected error occurred: " + error.message);
     });
-    return true; // Keep the message channel open for async response
   }
 });
