@@ -50,16 +50,16 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // When run button is clicked
-  runButton.addEventListener("click", function() {
+  runButton.addEventListener("click", function () {
     if (scanning) {
       stopScan();
       return;
     }
 
     // Get the current active tab
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       var tab = tabs[0];
-      
+
       // Check if we're on WhatsApp Web
       if (tab.url && tab.url.startsWith("https://web.whatsapp.com")) {
         scanning = true;
@@ -67,13 +67,13 @@ document.addEventListener("DOMContentLoaded", function() {
         updateStatus("Running...", "running");
         updateButtons();
         addLog("Starting WhatsApp number checker...");
-        
+
         try {
           // Inject our content script
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
             files: ["js/content.js"],
-          }, function() {
+          }, function () {
             // Send message to start checking
             chrome.tabs.sendMessage(tab.id, { type: "start_check" });
           });
@@ -91,17 +91,17 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // Settings button
-  settingsButton.addEventListener("click", function() {
+  settingsButton.addEventListener("click", function () {
     chrome.runtime.openOptionsPage();
   });
 
   // Clear logs button
-  clearLogsButton.addEventListener("click", function() {
+  clearLogsButton.addEventListener("click", function () {
     logArea.innerHTML = "";
   });
 
   // Clear results button
-  clearResultsButton.addEventListener("click", function() {
+  clearResultsButton.addEventListener("click", function () {
     users = [];
     resultsTable.innerHTML = "";
     userCountDisplay.textContent = 0;
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // Listen for messages from other parts of the extension
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     switch (message.type) {
       case "log":
         addLog(message.payload);
@@ -148,22 +148,27 @@ document.addEventListener("DOMContentLoaded", function() {
   // Function to add a new user to the results
   function addNewUser(user) {
     // Check if user already exists
-    var exists = users.some(function(u) {
+    var exists = users.some(function (u) {
       return u.Number === user.Number;
     });
-    
+
     if (exists) {
       addLog("⚠️ Duplicate skipped: " + user.Number);
       return;
     }
-    
+
     // Add the new user
     users.push(user);
     userCountDisplay.textContent = users.length;
 
-    // Add to the results table
+    // Add to the results table (using textContent to prevent XSS)
     var newRow = document.createElement("tr");
-    newRow.innerHTML = "<td>" + user.Reference + "</td><td>" + user.Number + "</td>";
+    var refCell = document.createElement("td");
+    var numCell = document.createElement("td");
+    refCell.textContent = user.Reference;
+    numCell.textContent = user.Number;
+    newRow.appendChild(refCell);
+    newRow.appendChild(numCell);
     resultsTable.appendChild(newRow);
     updateButtons();
   }
@@ -182,16 +187,16 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Export as JSON
-  exportJsonButton.addEventListener("click", function() {
+  exportJsonButton.addEventListener("click", function () {
     var jsonData = JSON.stringify(users, null, 2);
     download(jsonData, "whatsapp_users.json", "application/json");
     addLog("Exported results as JSON");
   });
 
   // Export as CSV
-  exportCsvButton.addEventListener("click", function() {
+  exportCsvButton.addEventListener("click", function () {
     var csv = "Reference,Number\n";
-    users.forEach(function(user) {
+    users.forEach(function (user) {
       var safeName = user.Reference.replace(/"/g, '""');
       csv += '"' + safeName + '","' + user.Number + '"\n';
     });
@@ -200,15 +205,15 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 
   // Copy to clipboard
-  copyButton.addEventListener("click", function() {
+  copyButton.addEventListener("click", function () {
     var text = "Reference\tNumber\n";
-    users.forEach(function(user) {
+    users.forEach(function (user) {
       text += user.Reference + "\t" + user.Number + "\n";
     });
-    
-    navigator.clipboard.writeText(text).then(function() {
+
+    navigator.clipboard.writeText(text).then(function () {
       addLog("Results copied to clipboard!");
-    }, function() {
+    }, function () {
       addLog("Error: Could not copy to clipboard.");
     });
   });
