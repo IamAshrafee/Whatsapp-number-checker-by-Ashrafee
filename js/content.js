@@ -211,9 +211,29 @@ async function processLinesWithHumanBehavior(lines) {
         return;
       }
 
-      // Check if user requested pause
-      while (isPaused) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      // Check if user requested pause (with safety timeout)
+      if (isPaused) {
+        const pauseStartTime = Date.now();
+        const MAX_PAUSE_DURATION = 10 * 60 * 1000; // 10 minutes max
+
+        while (isPaused) {
+          // Safety check: Stop if user requested stop
+          if (shouldStop) {
+            sendMessageToPopup("log", "⏹ Scanning stopped by user during pause");
+            return;
+          }
+
+          // Safety check: Auto-resume after 10 minutes to prevent infinite pause
+          const pauseDuration = Date.now() - pauseStartTime;
+          if (pauseDuration > MAX_PAUSE_DURATION) {
+            isPaused = false;
+            sendMessageToPopup("log", "⚠️ Auto-resumed after 10 minutes (safety timeout)");
+            break;
+          }
+
+          // Wait 500ms before checking again
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
 
       if (settings.randomDelay) {
