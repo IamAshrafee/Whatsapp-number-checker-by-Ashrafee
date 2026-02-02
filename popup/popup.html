@@ -15,8 +15,29 @@
 
     <section class="controls">
       <button id="runScript"><span>▶️</span> Start Checking</button>
+      <button id="pauseResumeBtn" class="secondary-button" style="display: none;">⏸ Pause</button>
       <button id="clearLogs" class="secondary-button">Clear Logs</button>
       <button id="settingsButton" class="secondary-button" title="Settings">⚙️ Settings</button>
+    </section>
+
+    <!-- Progress Section -->
+    <section id="progressSection" class="progress-section" style="display: none;">
+      <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <div class="progress-info">
+        <span id="progressText">0/0 (0%)</span>
+        <span id="timeEstimate"></span>
+      </div>
+    </section>
+
+    <!-- Summary Section -->
+    <section id="summarySection" class="summary-section" style="display: none;">
+      <div class="summary-stats">
+        <span class="stat-item stat-found">✅ Found: <strong id="summaryFound">0</strong></span>
+        <span class="stat-item stat-not-found">❌ Not Found: <strong id="summaryNotFound">0</strong></span>
+        <span class="stat-item stat-total">📊 Total: <strong id="summaryTotal">0</strong></span>
+      </div>
     </section>
 
     <section class="results-section">

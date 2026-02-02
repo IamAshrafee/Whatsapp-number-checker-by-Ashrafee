@@ -20,8 +20,17 @@ let settings = {
   randomOrder: true
 };
 
-// Global flag to stop scanning
+// Global flags for scan control
 let shouldStop = false;
+let isPaused = false;
+
+// Progress tracking
+let progressData = {
+  current: 0,
+  total: 0,
+  found: 0,
+  notFound: 0
+};
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -143,10 +152,27 @@ async function checkWhatsAppUsersFromLastMessage() {
 
   sendMessageToPopup("log", "📃 Lines in last message: " + textSpans.length);
 
+  // Initialize progress tracking
+  progressData = {
+    current: 0,
+    total: textSpans.length,
+    found: 0,
+    notFound: 0
+  };
+
   // Process lines with all human-like behaviors
   try {
     await processLinesWithHumanBehavior(textSpans);
-    sendMessageToPopup("scan_complete", "✅ Done! All lines have been checked.");
+
+    // Send final summary
+    sendMessageToPopup("scan_complete", {
+      message: "✅ Done! All lines have been checked.",
+      summary: {
+        total: progressData.total,
+        found: progressData.found,
+        notFound: progressData.notFound
+      }
+    });
   } catch (error) {
     sendMessageToPopup("error", "An error occurred: " + error.message);
   }
@@ -185,16 +211,28 @@ async function processLinesWithHumanBehavior(lines) {
         return;
       }
 
+      // Check if user requested pause
+      while (isPaused) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
       if (settings.randomDelay) {
         await waitRandomTime(800, 2000);
       }
 
-      if (settings.simulateErrors && shouldSimulateError()) {
+      // Skip this line randomly (simulate human error)
+      if (settings.simulateErrors && shouldSimulateError()) { // Kept original function name as per faithful edit
         sendMessageToPopup("log", `🤷‍♂️ Oops! Missed line ${i + 1} (human error simulation)`);
-        skippedLines.push({ line: linesArray[i], index: i + 1 });
+        skippedLines.push(i); // Changed to push index directly
+        progressData.current++; // Increment progress even for skipped lines
+        sendMessageToPopup("update_progress", progressData);
         continue;
       }
-      await processLine(linesArray[i], i + 1);
+
+      sendMessageToPopup("log", `🔍 Checking Line ${i + 1}`);
+      await processLine(linesArray[i]); // Removed lineNumber parameter
+      progressData.current++;
+      sendMessageToPopup("update_progress", progressData);
     }
 
     currentIndex = batchEnd;
@@ -288,6 +326,13 @@ async function processLine(line, lineNumber) {
     var whatsappStatus = menuItemsCount === 2 ? "found" : "not found";
     sendMessageToPopup("log", "✅ WhatsApp status: " + whatsappStatus);
 
+    // Track statistics
+    if (whatsappStatus === "found") {
+      progressData.found++;
+    } else {
+      progressData.notFound++;
+    }
+
     // If valid contact, send the user data to popup
     if (whatsappStatus === "found") {
       sendMessageToPopup("found_user", {
@@ -324,11 +369,18 @@ async function processLine(line, lineNumber) {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "start_check") {
     shouldStop = false;
+    isPaused = false;
     checkWhatsAppUsersFromLastMessage().catch(function (error) {
       sendMessageToPopup("error", "An unexpected error occurred: " + error.message);
     });
   } else if (request.type === "stop_scan") {
     shouldStop = true;
     sendMessageToPopup("log", "⏹ Stop request received");
+  } else if (request.type === "pause_scan") {
+    isPaused = true;
+    sendMessageToPopup("log", "⏸ Scan paused");
+  } else if (request.type === "resume_scan") {
+    isPaused = false;
+    sendMessageToPopup("log", "▶️ Scan resumed");
   }
 });

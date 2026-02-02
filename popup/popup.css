@@ -168,3 +168,73 @@ button:disabled {
   color: #495057;
   white-space: pre-line;
 }
+
+/* Progress Section */
+.progress-section {
+  margin-bottom: 18px;
+}
+
+.progress-bar-container {
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  height: 20px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover-color));
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #495057;
+  font-weight: 500;
+}
+
+/* Summary Section */
+.summary-section {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 1px solid var(--light-gray);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 18px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 16px;
+  justify-content: space-around;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  color: #495057;
+}
+
+.stat-item strong {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.stat-found strong {
+  color: var(--primary-color);
+}
+
+.stat-not-found strong {
+  color: #6c757d;
+}
+
+.stat-total strong {
+  color: var(--secondary-color);
+}
