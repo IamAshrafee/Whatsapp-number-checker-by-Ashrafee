@@ -127,13 +127,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Clear logs button
   clearLogsButton.addEventListener("click", function () {
-    logArea.innerHTML = "";
+    logArea.textContent = "";
   });
 
   // Clear results button
   clearResultsButton.addEventListener("click", function () {
     users = [];
-    resultsTable.innerHTML = "";
+    resultsTable.textContent = "";
     userCountDisplay.textContent = 0;
     summarySection.style.display = "none";
     updateButtons();
